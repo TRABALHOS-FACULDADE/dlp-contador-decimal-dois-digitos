@@ -32,14 +32,25 @@ begin
   up     <= KEY(1);
 
   -- divisor de clock
-  u_div : entity work.clk_div_sel
-    generic map(BASE_DIV => 22, CNTW => 40)
-    port map(
-      clk    => CLOCK_50,
-      resetn => resetn,
-      sel    => unsigned(SW(3 downto 0)),
-      tick   => tick
-    );
+  --u_div : entity work.clk_div_sel
+    --generic map(BASE_DIV => 22, CNTW => 40)
+    --port map(
+      --clk    => CLOCK_50,
+      --resetn => resetn,
+      --sel    => unsigned(SW(3 downto 0)),
+      --tick   => tick
+    --);
+
+  -- APENAS PARA TESTES NO WAVEFORM
+  u_div: entity work.clk_div_sel
+	 generic map ( BASE_DIV => 3 )
+	 port map (
+	   clk => CLOCK_50,
+		resetn => resetn,
+		sel => to_unsigned(0, 4),
+		tick => tick
+	 );
+
 
   -- contador 00..99
   u_cnt: entity work.updown_counter_00_99
