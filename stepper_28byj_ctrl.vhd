@@ -85,7 +85,7 @@ begin
       ----------------------------------------------------------------
       -- 2) Mapeia 01..99 -> FREQ_MIN..FREQ_MAX; 00 -> parado
       ----------------------------------------------------------------
-      if (enabled='0') or (v_val = 0) then
+      if (enabled='1') or (v_val = 0) then
         v_f_hz := 0;
       else
         -- interpolação linear (inteira): 1..99 -> [FREQ_MIN, FREQ_MAX]
@@ -111,7 +111,7 @@ begin
       ----------------------------------------------------------------
       -- 4) Geração de meio-passo: avança idx quando step_cnt atinge período
       ----------------------------------------------------------------
-      if (enabled='1') and (curr_period < integer'high) then
+      if (enabled='0') and (curr_period < integer'high) then
         if step_cnt >= curr_period then
           step_cnt <= 0;
           if dir_in='1' then
