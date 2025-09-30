@@ -14,6 +14,10 @@ entity ContadorDecimalProgressivoRegressivo is
 	 -- HEXx(6) HEXx(5) HEXx(4) HEXx(3) HEXx(2) HEXx(1) HEXx(0)
     --   g       f       e       d       c       b       a
 
+	 STEP_IN1 : out std_logic;
+    STEP_IN2 : out std_logic;
+    STEP_IN3 : out std_logic;
+    STEP_IN4 : out std_logic;
 	 
     LEDR     : out std_logic_vector(9 downto 0)
   );
@@ -26,10 +30,29 @@ architecture rtl of ContadorDecimalProgressivoRegressivo is
   signal d1,d0     : unsigned(3 downto 0);
   signal pulse_ro  : std_logic;
   signal seg0_w, seg1_w : std_logic_vector(6 downto 0);
+ 
 begin
-  -- botões do FPGA (ativos em 0)
   resetn <= KEY(0);
-  up     <= KEY(1);
+  up     <= SW(9);
+  
+  u_step: entity work.stepper_28byj_ctrl_bcd
+  generic map(
+    CLK_HZ      => 50_000_000,
+    FREQ_MIN_HZ => 120,
+    FREQ_MAX_HZ => 900,
+    RAMP_STEP   => 2000,
+    HOLD_WHEN_STOPPED => false
+  )
+  port map(
+    clk       => CLOCK_50,
+    resetn    => resetn,
+    enable_in => SW(8),    -- habilita motor
+    estop     => KEY(2),   -- emergência
+    dir_in    => up,       -- mesma direção do contador
+    d_tens    => d1,
+    d_ones    => d0,
+    IN1 => STEP_IN1, IN2 => STEP_IN2, IN3 => STEP_IN3, IN4 => STEP_IN4
+  );
 
   -- divisor de clock
   --u_div : entity work.clk_div_sel
@@ -43,7 +66,7 @@ begin
 
   -- APENAS PARA TESTES NO WAVEFORM
   u_div: entity work.clk_div_sel
-	 generic map ( BASE_DIV => 3 )
+	 generic map ( BASE_DIV => 1 )
 	 port map (
 	   clk => CLOCK_50,
 		resetn => resetn,
