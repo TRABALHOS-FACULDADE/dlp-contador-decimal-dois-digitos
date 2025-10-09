@@ -35,12 +35,32 @@ begin
   resetn <= KEY(0);
   up     <= SW(9);
   
-  u_step: entity work.stepper_28byj_ctrl_bcd
+  --u_step: entity work.stepper_28byj_ctrl_bcd
+  --generic map(
+    --CLK_HZ      => 50_000_000,
+    --FREQ_MIN_HZ => 120,
+    --FREQ_MAX_HZ => 900,
+    --RAMP_STEP   => 2000,
+    --HOLD_WHEN_STOPPED => false
+  --)
+  --port map(
+    --clk       => CLOCK_50,
+    --resetn    => resetn,
+    --enable_in => SW(8),    -- habilita motor
+    --estop     => KEY(2),   -- emergência
+    --dir_in    => up,       -- mesma direção do contador
+    --d_tens    => d1,
+    --d_ones    => d0,
+    --IN1 => STEP_IN1, IN2 => STEP_IN2, IN3 => STEP_IN3, IN4 => STEP_IN4
+  --);
+  
+  -- APENAS PARA TESTES NO WAVEFORM
+   u_step: entity work.stepper_28byj_ctrl_bcd
   generic map(
     CLK_HZ      => 50_000_000,
-    FREQ_MIN_HZ => 120,
-    FREQ_MAX_HZ => 900,
-    RAMP_STEP   => 2000,
+    FREQ_MIN_HZ => 2_000,
+    FREQ_MAX_HZ => 10_000,
+    RAMP_STEP   => 50_000,
     HOLD_WHEN_STOPPED => false
   )
   port map(

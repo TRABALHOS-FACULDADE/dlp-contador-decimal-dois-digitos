@@ -6,29 +6,29 @@ use ieee.numeric_std.all;
 entity stepper_28byj_ctrl_bcd is
   generic (
     CLK_HZ      : natural := 50_000_000;
-    FREQ_MIN_HZ : natural := 120;       -- pps quando valor=01
-    FREQ_MAX_HZ : natural := 900;       -- pps quando valor=99
-    RAMP_STEP   : natural := 2_000;     -- variação máx do período (ticks)
+    FREQ_MIN_HZ : natural;
+    FREQ_MAX_HZ : natural;
+    RAMP_STEP   : natural;
     HOLD_WHEN_STOPPED : boolean := false
   );
   port(
     clk       : in  std_logic;
-    resetn    : in  std_logic;            -- ativo em 0
-    enable_in : in  std_logic;            -- '1' habilita motor
-    estop     : in  std_logic;            -- '1' desliga bobinas imediatamente
-    dir_in    : in  std_logic;            -- direção: 1=A, 0=B
+    resetn    : in  std_logic;
+    enable_in : in  std_logic;
+    estop     : in  std_logic;
+    dir_in    : in  std_logic;
 
-    -- BCD direto do seu contador:
+    -- BCD do contador:
     d_tens    : in  unsigned(3 downto 0); -- 0..9
     d_ones    : in  unsigned(3 downto 0); -- 0..9
 
-    -- Saídas para ULN2003 (ativas em '1')
+    -- Saídas para ULN2003
     IN1, IN2, IN3, IN4 : out std_logic
   );
 end;
 
 architecture rtl of stepper_28byj_ctrl_bcd is
-  -- half-step 8 estados: IN1..IN4 (A AB B BC C CD D DA)
+
   type seq_t is array (0 to 7) of std_logic_vector(3 downto 0);
   constant SEQ : seq_t := (
     "1000", "1100", "0100", "0110",
@@ -43,16 +43,16 @@ architecture rtl of stepper_28byj_ctrl_bcd is
     end if;
   end;
 
-  -- converte BCD (tens, ones) para 0..99 sem criar barramento externo:
+  -- função para converter BCD para 0..99:
   function bcd_to_u7(tens, ones : unsigned(3 downto 0)) return unsigned is
-    variable t8  : unsigned(6 downto 0);  -- tens<<3
-    variable t2  : unsigned(6 downto 0);  -- tens<<1
+    variable t8  : unsigned(6 downto 0);
+    variable t2  : unsigned(6 downto 0);
     variable sum : unsigned(6 downto 0);
   begin
-    t8  := resize(tens, 7) sll 3;               -- *8
-    t2  := resize(tens, 7) sll 1;               -- *2
-    sum := t8 + t2 + resize(ones, 7);           -- *8 + *2 + ones = *10 + ones
-    return sum;                                  -- 0..99 (em 7 bits)
+    t8  := resize(tens, 7) sll 3;
+    t2  := resize(tens, 7) sll 1;
+    sum := t8 + t2 + resize(ones, 7);
+    return sum; -- 0..99 (em 7 bits)
   end;
 
   signal enabled       : std_logic;
